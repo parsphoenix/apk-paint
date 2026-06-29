@@ -16,7 +16,9 @@ workflows:
       - name: Build web app
         script: npm run build:webview
       - name: Sync Capacitor Android
-        script: npx cap sync android
+        script: |
+          mkdir -p android/app/src/main/assets
+          npx cap sync android
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"

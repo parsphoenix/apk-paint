@@ -30,7 +30,7 @@ function lazyInherit(target, source, sourceKey) {
     if (modified) Object.defineProperty(target, key, desc);
   }
 }
-const _needsNormRE = /(?:(?:^|\/)(?:\.|\.\.|%2e|%2e\.|\.%2e|%2e%2e)(?:\/|$))|[\\^\x80-\uffff]/i;
+const _needsNormRE = /(?:(?:^|\/)(?:\.|\.\.|%2e|%2e\.|\.%2e|%2e%2e)(?:\/|$))|[\\^#"<>{}`\x80-\uffff]/i;
 const FastURL = /* @__PURE__ */ (() => {
   const NativeURL = globalThis.URL;
   const FastURL2 = class URL {
@@ -43,9 +43,11 @@ const FastURL = /* @__PURE__ */ (() => {
     #searchParams;
     #pos;
     constructor(url) {
-      if (typeof url === "string") if (url[0] === "/") this.#href = url;
-      else this.#url = new NativeURL(url);
-      else if (_needsNormRE.test(url.pathname)) this.#url = new NativeURL(`${url.protocol || "http:"}//${url.host || "localhost"}${url.pathname}${url.search || ""}`);
+      if (typeof url === "string") {
+        const isOriginForm = url[0] === "/";
+        if (isOriginForm && !url.includes("#")) this.#href = url;
+        else this.#url = new NativeURL(isOriginForm ? `http://localhost${url}` : url);
+      } else if (_needsNormRE.test(url.pathname) || url.search?.includes("#")) this.#url = new NativeURL(`${url.protocol || "http:"}//${url.host || "localhost"}${url.pathname}${url.search || ""}`);
       else {
         this.#protocol = url.protocol;
         this.#host = url.host;
@@ -446,8 +448,9 @@ const NodeRequestHeaders = /* @__PURE__ */ (() => {
   Object.setPrototypeOf(Headers2.prototype, NativeHeaders.prototype);
   return Headers2;
 })();
+const kNativeRequest = /* @__PURE__ */ Symbol.for("srvx.nativeRequest");
 const NodeRequest = /* @__PURE__ */ (() => {
-  const NativeRequest = globalThis.Request;
+  const NativeRequest = getNativeRequest();
   class Request {
     runtime;
     #req;
@@ -562,6 +565,11 @@ function readBody(req) {
     };
     req.on("data", onData).once("end", onEnd).once("error", onError);
   });
+}
+function getNativeRequest() {
+  let R = globalThis[kNativeRequest] || globalThis.Request;
+  while (R?._srvx) R = Object.getPrototypeOf(R);
+  return globalThis[kNativeRequest] ??= R;
 }
 const NodeResponse = /* @__PURE__ */ (() => {
   const NativeResponse = globalThis.Response;

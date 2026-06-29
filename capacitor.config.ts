@@ -10,7 +10,7 @@ const serverUrl =
 const config: CapacitorConfig = {
   appId: "ir.parsphoenix.guessthepainting",
   appName: "Guess the Painting",
-  webDir: "dist",
+  webDir: ".output/public",
   bundledWebRuntime: false,
   server: {
     androidScheme: "https",
