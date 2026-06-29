@@ -4,10 +4,9 @@ workflows:
     max_build_duration: 60
     environment:
       android:
-        android_sdk: "35"
-        ndk: "r26d"
-      node: "22"
-      npm: "10"
+        android_sdk: 35
+      node: 22
+      npm: 10
       groups:
         - supabase_credentials
       variables:
