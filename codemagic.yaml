@@ -8,11 +8,11 @@ workflows:
       vars:
         CAPACITOR_SERVER_URL: "https://paint.parsgrand.ir"
         VITE_API_BASE_URL: "https://paint.parsgrand.ir"
-      node: 20
+      node: 22
       java: 17
     scripts:
       - name: Install dependencies
-        script: npm ci
+        script: npm install
       - name: Build web app
         script: npm run build:webview
       - name: Sync Capacitor Android
